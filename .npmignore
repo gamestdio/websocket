@@ -1,0 +1,7 @@
+*.DS_Store
+.DS_Store
+.git*
+.editorconfig
+.gitignore
+index.html
+examples

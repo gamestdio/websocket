@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      body { font-family: Tahoma, Geneva, sans-serif; }
+    </style>
+    <script src="dist/websocket-client.js"></script>
+  </head>
+  <body>
+    <strong>Messages</strong><br>
+
+    <form id="form">
+      <input type="text" id="input" value="" />
+      <input type="submit" value="send" />
+    </form>
+
+    <div id="messages"></div>
+
+    <script>
+      var host = window.document.location.host.replace(/:.*/, '');
+      var conn = new WebSocketClient('ws://' + host + ':8080');
+
+      conn.onmessage = function (event) {
+        var node = document.createElement("p");
+        node.innerHTML = event.data;
+        document.getElementById('messages').appendChild(node)
+      };
+
+      conn.onclose = function (event) {
+        console.log("closing connection...")
+      }
+
+      document.getElementById('form').onsubmit = function(e) {
+        e.preventDefault()
+        // conn.binaryType = "arraybuffer"
+        conn.send(document.getElementById('input').value)
+        document.getElementById('input').value = null
+      }
+    </script>
+
+  </body>
+</html>
