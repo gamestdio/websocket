@@ -1,6 +1,6 @@
-# websocket-client
+# websocket.js
 
-WebSocket with reconnect backoff feature
+WebSocket browser client with reconnect back-off feature.
 
 ## Usage
 
@@ -29,6 +29,14 @@ var conn = new WebSocketClient('ws://' + host + ':8080', null, {
   factor: 3               // defaults to 2, must be greater than 1
 });
 ```
+
+## Event Listeners
+
+- onclose
+- onerror
+- onmessage
+- onopen
+- onreconnect
 
 ## License
 

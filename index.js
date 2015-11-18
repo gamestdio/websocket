@@ -142,18 +142,21 @@ class WebSocketClient {
 
   /**
    * An event listener to be called when an error occurs. This is a simple event named "error".
+   * @param listener EventListener
    */
   set onerror (listener) { this.listeners['onerror'] = listener }
   get onerror () { return this.listeners['onerror'] }
 
   /**
    * An event listener to be called when a message is received from the server. The listener receives a MessageEvent named "message".
+   * @param listener EventListener
    */
   set onmessage (listener) { this.listeners['onmessage'] = listener }
   get onmessage () { return this.listeners['onmessage'] }
 
   /**
    * An event listener to be called when the WebSocket connection's readyState changes to OPEN; this indicates that the connection is ready to send and receive data. The event is a simple one with the name "open".
+   * @param listener EventListener
    */
   set onopen (listener) { this.listeners['onopen'] = listener }
   get onopen () { return this.listeners['onopen'] }
@@ -162,8 +165,6 @@ class WebSocketClient {
   get onreconnect () { return this.listeners['onreconnect'] }
 
 }
-
-
 
 /**
  * The connection is not yet open.
