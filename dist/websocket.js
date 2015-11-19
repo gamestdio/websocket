@@ -84,7 +84,7 @@ var WebSocketClient = (function () {
   }, {
     key: 'onOpenCallback',
     value: function onOpenCallback() {
-      if (this.listeners['onopen']) this.listeners['onmessage'].apply(null, arguments);
+      if (this.listeners['onopen']) this.listeners['onopen'].apply(null, arguments);
       if (this.isReconnect && this.listeners['onreconnect']) this.listeners['onreconnect'].apply(null, arguments);
       this.isReconnect = false;
     }
