@@ -1,6 +1,6 @@
 {
   "name": "websocket.js",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "WebSocket browser client with reconnect back-off feature.",
   "repository": {
     "type": "git",
@@ -11,7 +11,7 @@
     "dev": "watchify ./index.js -s WebSocketClient -o dist/websocket.js",
     "start": "npm run dev & nodemon ./examples/server.js",
     "uglify": "uglifyjs dist/websocket.js --compress > dist/websocket.min.js",
-    "release": "browserify ./index.js -s WebSocketClient --bare -o dist/websocket.js",
+    "release": "browserify ./index.js -s WebSocketClient -o dist/websocket.js",
     "prepublish": "npm run release && npm run uglify"
   },
   "browserify": {
