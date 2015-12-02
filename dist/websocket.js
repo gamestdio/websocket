@@ -1,294 +1,4 @@
 (function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.WebSocketClient = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-'use strict';
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var backoff = require('backoff');
-
-var WebSocketClient = (function () {
-
-  /**
-   * @param url DOMString The URL to which to connect; this should be the URL to which the WebSocket server will respond.
-   * @param protocols DOMString|DOMString[] Either a single protocol string or an array of protocol strings. These strings are used to indicate sub-protocols, so that a single server can implement multiple WebSocket sub-protocols (for example, you might want one server to be able to handle different types of interactions depending on the specified protocol). If you don't specify a protocol string, an empty string is assumed.
-   */
-
-  function WebSocketClient(url) {
-    var protocols = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
-    var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
-
-    _classCallCheck(this, WebSocketClient);
-
-    this.url = url;
-    this._protocols = protocols;
-
-    this.reconnectEnabled = true;
-    this.listeners = {};
-
-    this.backoff = backoff[options.backoff || 'fibonacci'](options);
-    this.backoff.on('backoff', this.onBackoffStart.bind(this));
-    this.backoff.on('ready', this.onBackoffReady.bind(this));
-    this.backoff.on('fail', this.onBackoffFail.bind(this));
-
-    this.open();
-  }
-
-  _createClass(WebSocketClient, [{
-    key: 'open',
-    value: function open() {
-      var reconnect = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
-
-      this.isReconnect = reconnect;
-
-      this.ws = new WebSocket(this.url, this._protocols);
-      this.ws.onclose = this.onCloseCallback.bind(this);
-      this.ws.onerror = this.onErrorCallback.bind(this);
-      this.ws.onmessage = this.onMessageCallback.bind(this);
-      this.ws.onopen = this.onOpenCallback.bind(this);
-    }
-  }, {
-    key: 'onBackoffStart',
-    value: function onBackoffStart(number, delay) {
-      // console.log("onBackoffStart", number + ' ' + delay + 'ms');
-    }
-  }, {
-    key: 'onBackoffReady',
-    value: function onBackoffReady(number, delay) {
-      // console.log("onBackoffReady", number + ' ' + delay + 'ms');
-      this.open(true);
-    }
-  }, {
-    key: 'onBackoffFail',
-    value: function onBackoffFail() {
-      // console.log("onBackoffFail");
-    }
-  }, {
-    key: 'onCloseCallback',
-    value: function onCloseCallback() {
-      if (!this.isReconnect && this.listeners['onclose']) this.listeners['onclose'].apply(null, arguments);
-      if (this.reconnectEnabled) {
-        this.backoff.backoff();
-      }
-    }
-  }, {
-    key: 'onErrorCallback',
-    value: function onErrorCallback() {
-      if (this.listeners['onerror']) this.listeners['onerror'].apply(null, arguments);
-    }
-  }, {
-    key: 'onMessageCallback',
-    value: function onMessageCallback() {
-      if (this.listeners['onmessage']) this.listeners['onmessage'].apply(null, arguments);
-    }
-  }, {
-    key: 'onOpenCallback',
-    value: function onOpenCallback() {
-      if (this.listeners['onopen']) this.listeners['onopen'].apply(null, arguments);
-      if (this.isReconnect && this.listeners['onreconnect']) this.listeners['onreconnect'].apply(null, arguments);
-      this.isReconnect = false;
-    }
-
-    /**
-     * The number of bytes of data that have been queued using calls to send()
-     * but not yet transmitted to the network. This value does not reset to zero
-     * when the connection is closed; if you keep calling send(), this will
-     * continue to climb.
-     *
-     * @type unsigned long
-     * @readonly
-     */
-
-  }, {
-    key: 'close',
-
-    /**
-     * Closes the WebSocket connection or connection attempt, if any. If the
-     * connection is already CLOSED, this method does nothing.
-     *
-     * @param code A numeric value indicating the status code explaining why the connection is being closed. If this parameter is not specified, a default value of 1000 (indicating a normal "transaction complete" closure) is assumed. See the list of status codes on the CloseEvent page for permitted values.
-     * @param reason A human-readable string explaining why the connection is closing. This string must be no longer than 123 bytes of UTF-8 text (not characters).
-     *
-     * @return void
-     */
-    value: function close(code, reason) {
-      if (typeof code == 'undefined') {
-        code = 1000;
-      }
-
-      this.reconnectEnabled = false;
-
-      this.ws.close(code, reason);
-    }
-
-    /**
-     * Transmits data to the server over the WebSocket connection.
-     * @param data DOMString|ArrayBuffer|Blob
-     * @return void
-     */
-
-  }, {
-    key: 'send',
-    value: function send(data) {
-      this.ws.send(data);
-    }
-
-    /**
-     * An event listener to be called when the WebSocket connection's readyState changes to CLOSED. The listener receives a CloseEvent named "close".
-     * @param listener EventListener
-     */
-
-  }, {
-    key: 'bufferedAmount',
-    get: function get() {
-      return this.ws.bufferedAmount;
-    }
-
-    /**
-     * The current state of the connection; this is one of the Ready state constants.
-     * @type unsigned short
-     * @readonly
-     */
-
-  }, {
-    key: 'readyState',
-    get: function get() {
-      return this.ws.readyState;
-    }
-
-    /**
-     * A string indicating the type of binary data being transmitted by the
-     * connection. This should be either "blob" if DOM Blob objects are being
-     * used or "arraybuffer" if ArrayBuffer objects are being used.
-     * @type DOMString
-     */
-
-  }, {
-    key: 'binaryType',
-    get: function get() {
-      return this.ws.binaryType;
-    },
-    set: function set(binaryType) {
-      this.ws.binaryType = binaryType;
-    }
-
-    /**
-     * The extensions selected by the server. This is currently only the empty
-     * string or a list of extensions as negotiated by the connection.
-     * @type DOMString
-     */
-
-  }, {
-    key: 'extensions',
-    get: function get() {
-      return this.ws.extensions;
-    },
-    set: function set(extensions) {
-      this.ws.extensions = extensions;
-    }
-
-    /**
-     * A string indicating the name of the sub-protocol the server selected;
-     * this will be one of the strings specified in the protocols parameter when
-     * creating the WebSocket object.
-     * @type DOMString
-     */
-
-  }, {
-    key: 'protocol',
-    get: function get() {
-      return this.ws.protocol;
-    },
-    set: function set(protocol) {
-      this.ws.protocol = protocol;
-    }
-  }, {
-    key: 'onclose',
-    set: function set(listener) {
-      this.listeners['onclose'] = listener;
-    },
-    get: function get() {
-      return this.listeners['onclose'];
-    }
-
-    /**
-     * An event listener to be called when an error occurs. This is a simple event named "error".
-     * @param listener EventListener
-     */
-
-  }, {
-    key: 'onerror',
-    set: function set(listener) {
-      this.listeners['onerror'] = listener;
-    },
-    get: function get() {
-      return this.listeners['onerror'];
-    }
-
-    /**
-     * An event listener to be called when a message is received from the server. The listener receives a MessageEvent named "message".
-     * @param listener EventListener
-     */
-
-  }, {
-    key: 'onmessage',
-    set: function set(listener) {
-      this.listeners['onmessage'] = listener;
-    },
-    get: function get() {
-      return this.listeners['onmessage'];
-    }
-
-    /**
-     * An event listener to be called when the WebSocket connection's readyState changes to OPEN; this indicates that the connection is ready to send and receive data. The event is a simple one with the name "open".
-     * @param listener EventListener
-     */
-
-  }, {
-    key: 'onopen',
-    set: function set(listener) {
-      this.listeners['onopen'] = listener;
-    },
-    get: function get() {
-      return this.listeners['onopen'];
-    }
-  }, {
-    key: 'onreconnect',
-    set: function set(listener) {
-      this.listener['onreconnect'] = listener;
-    },
-    get: function get() {
-      return this.listeners['onreconnect'];
-    }
-  }]);
-
-  return WebSocketClient;
-})();
-
-/**
- * The connection is not yet open.
- */
-
-WebSocketClient.CONNECTING = WebSocket.CONNECTING;
-
-/**
- * The connection is open and ready to communicate.
- */
-WebSocketClient.OPEN = WebSocket.OPEN;
-
-/**
- * The connection is in the process of closing.
- */
-WebSocketClient.CLOSING = WebSocket.CLOSING;
-
-/**
- * The connection is closed or couldn't be opened.
- */
-WebSocketClient.CLOSED = WebSocket.CLOSED;
-
-module.exports = WebSocketClient;
-
-},{"backoff":2}],2:[function(require,module,exports){
 //      Copyright (c) 2012 Mathieu Turcotte
 //      Licensed under the MIT license.
 
@@ -321,7 +31,7 @@ module.exports.call = function(fn, vargs, callback) {
     return new FunctionCall(fn, vargs, callback);
 };
 
-},{"./lib/backoff":3,"./lib/function_call.js":4,"./lib/strategy/exponential":5,"./lib/strategy/fibonacci":6}],3:[function(require,module,exports){
+},{"./lib/backoff":2,"./lib/function_call.js":3,"./lib/strategy/exponential":4,"./lib/strategy/fibonacci":5}],2:[function(require,module,exports){
 //      Copyright (c) 2012 Mathieu Turcotte
 //      Licensed under the MIT license.
 
@@ -388,7 +98,7 @@ Backoff.prototype.reset = function() {
 
 module.exports = Backoff;
 
-},{"events":8,"precond":10,"util":15}],4:[function(require,module,exports){
+},{"events":7,"precond":9,"util":14}],3:[function(require,module,exports){
 //      Copyright (c) 2012 Mathieu Turcotte
 //      Licensed under the MIT license.
 
@@ -558,7 +268,7 @@ FunctionCall.prototype.handleBackoff_ = function(number, delay, err) {
 
 module.exports = FunctionCall;
 
-},{"./backoff":3,"./strategy/fibonacci":6,"events":8,"precond":10,"util":15}],5:[function(require,module,exports){
+},{"./backoff":2,"./strategy/fibonacci":5,"events":7,"precond":9,"util":14}],4:[function(require,module,exports){
 //      Copyright (c) 2012 Mathieu Turcotte
 //      Licensed under the MIT license.
 
@@ -601,7 +311,7 @@ ExponentialBackoffStrategy.prototype.reset_ = function() {
 
 module.exports = ExponentialBackoffStrategy;
 
-},{"./strategy":7,"precond":10,"util":15}],6:[function(require,module,exports){
+},{"./strategy":6,"precond":9,"util":14}],5:[function(require,module,exports){
 //      Copyright (c) 2012 Mathieu Turcotte
 //      Licensed under the MIT license.
 
@@ -631,7 +341,7 @@ FibonacciBackoffStrategy.prototype.reset_ = function() {
 
 module.exports = FibonacciBackoffStrategy;
 
-},{"./strategy":7,"util":15}],7:[function(require,module,exports){
+},{"./strategy":6,"util":14}],6:[function(require,module,exports){
 //      Copyright (c) 2012 Mathieu Turcotte
 //      Licensed under the MIT license.
 
@@ -713,7 +423,7 @@ BackoffStrategy.prototype.reset_ = function() {
 
 module.exports = BackoffStrategy;
 
-},{"events":8,"util":15}],8:[function(require,module,exports){
+},{"events":7,"util":14}],7:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -1013,7 +723,7 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}],9:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -1038,14 +748,14 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],10:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 /*
  * Copyright (c) 2012 Mathieu Turcotte
  * Licensed under the MIT license.
  */
 
 module.exports = require('./lib/checks');
-},{"./lib/checks":11}],11:[function(require,module,exports){
+},{"./lib/checks":10}],10:[function(require,module,exports){
 /*
  * Copyright (c) 2012 Mathieu Turcotte
  * Licensed under the MIT license.
@@ -1141,7 +851,7 @@ module.exports.checkIsBoolean = typeCheck('boolean');
 module.exports.checkIsFunction = typeCheck('function');
 module.exports.checkIsObject = typeCheck('object');
 
-},{"./errors":12,"util":15}],12:[function(require,module,exports){
+},{"./errors":11,"util":14}],11:[function(require,module,exports){
 /*
  * Copyright (c) 2012 Mathieu Turcotte
  * Licensed under the MIT license.
@@ -1167,7 +877,7 @@ IllegalStateError.prototype.name = 'IllegalStateError';
 
 module.exports.IllegalStateError = IllegalStateError;
 module.exports.IllegalArgumentError = IllegalArgumentError;
-},{"util":15}],13:[function(require,module,exports){
+},{"util":14}],12:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};
@@ -1260,14 +970,14 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],14:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 module.exports = function isBuffer(arg) {
   return arg && typeof arg === 'object'
     && typeof arg.copy === 'function'
     && typeof arg.fill === 'function'
     && typeof arg.readUInt8 === 'function';
 }
-},{}],15:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 (function (process,global){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -1857,5 +1567,335 @@ function hasOwnProperty(obj, prop) {
 }
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./support/isBuffer":14,"_process":13,"inherits":9}]},{},[1])(1)
+},{"./support/isBuffer":13,"_process":12,"inherits":8}],15:[function(require,module,exports){
+'use strict';
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var backoff = require('backoff');
+
+var WebSocketClient = (function () {
+
+  /**
+   * @param url DOMString The URL to which to connect; this should be the URL to which the WebSocket server will respond.
+   * @param protocols DOMString|DOMString[] Either a single protocol string or an array of protocol strings. These strings are used to indicate sub-protocols, so that a single server can implement multiple WebSocket sub-protocols (for example, you might want one server to be able to handle different types of interactions depending on the specified protocol). If you don't specify a protocol string, an empty string is assumed.
+   */
+
+  function WebSocketClient(url) {
+    var protocols = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+    var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+
+    _classCallCheck(this, WebSocketClient);
+
+    this.url = url;
+    this._protocols = protocols;
+
+    this.reconnectEnabled = true;
+    this.listeners = {};
+
+    this.backoff = backoff[options.backoff || 'fibonacci'](options);
+    this.backoff.on('backoff', this.onBackoffStart.bind(this));
+    this.backoff.on('ready', this.onBackoffReady.bind(this));
+    this.backoff.on('fail', this.onBackoffFail.bind(this));
+
+    this.open();
+  }
+
+  _createClass(WebSocketClient, [{
+    key: 'open',
+    value: function open() {
+      var reconnect = arguments.length <= 0 || arguments[0] === undefined ? false : arguments[0];
+
+      this.isReconnect = reconnect;
+
+      this.ws = new WebSocket(this.url, this._protocols);
+      this.ws.onclose = this.onCloseCallback.bind(this);
+      this.ws.onerror = this.onErrorCallback.bind(this);
+      this.ws.onmessage = this.onMessageCallback.bind(this);
+      this.ws.onopen = this.onOpenCallback.bind(this);
+    }
+
+    /**
+     * @ignore
+     */
+
+  }, {
+    key: 'onBackoffStart',
+    value: function onBackoffStart(number, delay) {}
+
+    /**
+     * @ignore
+     */
+
+  }, {
+    key: 'onBackoffReady',
+    value: function onBackoffReady(number, delay) {
+      // console.log("onBackoffReady", number + ' ' + delay + 'ms');
+      this.open(true);
+    }
+
+    /**
+     * @ignore
+     */
+
+  }, {
+    key: 'onBackoffFail',
+    value: function onBackoffFail() {}
+
+    /**
+     * @ignore
+     */
+
+  }, {
+    key: 'onCloseCallback',
+    value: function onCloseCallback() {
+      if (!this.isReconnect && this.listeners['onclose']) this.listeners['onclose'].apply(null, arguments);
+      if (this.reconnectEnabled) {
+        this.backoff.backoff();
+      }
+    }
+
+    /**
+     * @ignore
+     */
+
+  }, {
+    key: 'onErrorCallback',
+    value: function onErrorCallback() {
+      if (this.listeners['onerror']) this.listeners['onerror'].apply(null, arguments);
+    }
+
+    /**
+     * @ignore
+     */
+
+  }, {
+    key: 'onMessageCallback',
+    value: function onMessageCallback() {
+      if (this.listeners['onmessage']) this.listeners['onmessage'].apply(null, arguments);
+    }
+
+    /**
+     * @ignore
+     */
+
+  }, {
+    key: 'onOpenCallback',
+    value: function onOpenCallback() {
+      if (this.listeners['onopen']) this.listeners['onopen'].apply(null, arguments);
+      if (this.isReconnect && this.listeners['onreconnect']) this.listeners['onreconnect'].apply(null, arguments);
+      this.isReconnect = false;
+    }
+
+    /**
+     * The number of bytes of data that have been queued using calls to send()
+     * but not yet transmitted to the network. This value does not reset to zero
+     * when the connection is closed; if you keep calling send(), this will
+     * continue to climb.
+     *
+     * @type unsigned long
+     * @readonly
+     */
+
+  }, {
+    key: 'close',
+
+    /**
+     * Closes the WebSocket connection or connection attempt, if any. If the
+     * connection is already CLOSED, this method does nothing.
+     *
+     * @param code A numeric value indicating the status code explaining why the connection is being closed. If this parameter is not specified, a default value of 1000 (indicating a normal "transaction complete" closure) is assumed. See the list of status codes on the CloseEvent page for permitted values.
+     * @param reason A human-readable string explaining why the connection is closing. This string must be no longer than 123 bytes of UTF-8 text (not characters).
+     *
+     * @return void
+     */
+    value: function close(code, reason) {
+      if (typeof code == 'undefined') {
+        code = 1000;
+      }
+
+      this.reconnectEnabled = false;
+
+      this.ws.close(code, reason);
+    }
+
+    /**
+     * Transmits data to the server over the WebSocket connection.
+     * @param data DOMString|ArrayBuffer|Blob
+     * @return void
+     */
+
+  }, {
+    key: 'send',
+    value: function send(data) {
+      this.ws.send(data);
+    }
+
+    /**
+     * An event listener to be called when the WebSocket connection's readyState changes to CLOSED. The listener receives a CloseEvent named "close".
+     * @param listener EventListener
+     */
+
+  }, {
+    key: 'bufferedAmount',
+    get: function get() {
+      return this.ws.bufferedAmount;
+    }
+
+    /**
+     * The current state of the connection; this is one of the Ready state constants.
+     * @type unsigned short
+     * @readonly
+     */
+
+  }, {
+    key: 'readyState',
+    get: function get() {
+      return this.ws.readyState;
+    }
+
+    /**
+     * A string indicating the type of binary data being transmitted by the
+     * connection. This should be either "blob" if DOM Blob objects are being
+     * used or "arraybuffer" if ArrayBuffer objects are being used.
+     * @type DOMString
+     */
+
+  }, {
+    key: 'binaryType',
+    get: function get() {
+      return this.ws.binaryType;
+    },
+    set: function set(binaryType) {
+      this.ws.binaryType = binaryType;
+    }
+
+    /**
+     * The extensions selected by the server. This is currently only the empty
+     * string or a list of extensions as negotiated by the connection.
+     * @type DOMString
+     */
+
+  }, {
+    key: 'extensions',
+    get: function get() {
+      return this.ws.extensions;
+    },
+    set: function set(extensions) {
+      this.ws.extensions = extensions;
+    }
+
+    /**
+     * A string indicating the name of the sub-protocol the server selected;
+     * this will be one of the strings specified in the protocols parameter when
+     * creating the WebSocket object.
+     * @type DOMString
+     */
+
+  }, {
+    key: 'protocol',
+    get: function get() {
+      return this.ws.protocol;
+    },
+    set: function set(protocol) {
+      this.ws.protocol = protocol;
+    }
+  }, {
+    key: 'onclose',
+    set: function set(listener) {
+      this.listeners['onclose'] = listener;
+    },
+    get: function get() {
+      return this.listeners['onclose'];
+    }
+
+    /**
+     * An event listener to be called when an error occurs. This is a simple event named "error".
+     * @param listener EventListener
+     */
+
+  }, {
+    key: 'onerror',
+    set: function set(listener) {
+      this.listeners['onerror'] = listener;
+    },
+    get: function get() {
+      return this.listeners['onerror'];
+    }
+
+    /**
+     * An event listener to be called when a message is received from the server. The listener receives a MessageEvent named "message".
+     * @param listener EventListener
+     */
+
+  }, {
+    key: 'onmessage',
+    set: function set(listener) {
+      this.listeners['onmessage'] = listener;
+    },
+    get: function get() {
+      return this.listeners['onmessage'];
+    }
+
+    /**
+     * An event listener to be called when the WebSocket connection's readyState changes to OPEN; this indicates that the connection is ready to send and receive data. The event is a simple one with the name "open".
+     * @param listener EventListener
+     */
+
+  }, {
+    key: 'onopen',
+    set: function set(listener) {
+      this.listeners['onopen'] = listener;
+    },
+    get: function get() {
+      return this.listeners['onopen'];
+    }
+
+    /**
+     * @param listener EventListener
+     */
+
+  }, {
+    key: 'onreconnect',
+    set: function set(listener) {
+      this.listener['onreconnect'] = listener;
+    },
+    get: function get() {
+      return this.listeners['onreconnect'];
+    }
+  }]);
+
+  return WebSocketClient;
+})();
+
+/**
+ * The connection is not yet open.
+ */
+
+WebSocketClient.CONNECTING = WebSocket.CONNECTING;
+
+/**
+ * The connection is open and ready to communicate.
+ */
+WebSocketClient.OPEN = WebSocket.OPEN;
+
+/**
+ * The connection is in the process of closing.
+ */
+WebSocketClient.CLOSING = WebSocket.CLOSING;
+
+/**
+ * The connection is closed or couldn't be opened.
+ */
+WebSocketClient.CLOSED = WebSocket.CLOSED;
+
+exports.default = WebSocketClient;
+
+},{"backoff":1}]},{},[15])(15)
 });

@@ -31,19 +31,27 @@ class WebSocketClient {
     this.ws.onopen = this.onOpenCallback.bind(this)
   }
 
-  onBackoffStart (number, delay) {
-    // console.log("onBackoffStart", number + ' ' + delay + 'ms');
-  }
+  /**
+   * @ignore
+   */
+  onBackoffStart (number, delay) { }
 
+  /**
+   * @ignore
+   */
   onBackoffReady (number, delay) {
     // console.log("onBackoffReady", number + ' ' + delay + 'ms');
     this.open(true)
   }
 
-  onBackoffFail () {
-    // console.log("onBackoffFail");
-  }
+  /**
+   * @ignore
+   */
+  onBackoffFail () { }
 
+  /**
+   * @ignore
+   */
   onCloseCallback () {
     if (!this.isReconnect && this.listeners['onclose']) this.listeners['onclose'].apply(null, arguments)
     if (this.reconnectEnabled) {
@@ -51,14 +59,23 @@ class WebSocketClient {
     }
   }
 
+  /**
+   * @ignore
+   */
   onErrorCallback () {
     if (this.listeners['onerror']) this.listeners['onerror'].apply(null, arguments)
   }
 
+  /**
+   * @ignore
+   */
   onMessageCallback () {
     if (this.listeners['onmessage']) this.listeners['onmessage'].apply(null, arguments)
   }
 
+  /**
+   * @ignore
+   */
   onOpenCallback () {
     if (this.listeners['onopen']) this.listeners['onopen'].apply(null, arguments)
     if (this.isReconnect && this.listeners['onreconnect']) this.listeners['onreconnect'].apply(null, arguments)
@@ -161,6 +178,9 @@ class WebSocketClient {
   set onopen (listener) { this.listeners['onopen'] = listener }
   get onopen () { return this.listeners['onopen'] }
 
+  /**
+   * @param listener EventListener
+   */
   set onreconnect (listener) { this.listener['onreconnect'] = listener }
   get onreconnect () { return this.listeners['onreconnect'] }
 
@@ -186,4 +206,4 @@ WebSocketClient.CLOSING = WebSocket.CLOSING
  */
 WebSocketClient.CLOSED = WebSocket.CLOSED
 
-module.exports = WebSocketClient
+export default WebSocketClient
