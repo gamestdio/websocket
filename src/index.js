@@ -181,7 +181,7 @@ class WebSocketClient {
   /**
    * @param listener EventListener
    */
-  set onreconnect (listener) { this.listener['onreconnect'] = listener }
+  set onreconnect (listener) { this.listeners['onreconnect'] = listener }
   get onreconnect () { return this.listeners['onreconnect'] }
 
 }
