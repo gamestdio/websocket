@@ -17,6 +17,8 @@
     <div id="messages"></div>
 
     <script>
+      var WebSocketClient = WebSocketClient.default;
+
       var host = window.document.location.host.replace(/:.*/, '');
       var conn = new WebSocketClient('ws://' + host + ':8080');
 

@@ -1587,8 +1587,7 @@ var WebSocketClient = function () {
    * @param protocols DOMString|DOMString[] Either a single protocol string or an array of protocol strings. These strings are used to indicate sub-protocols, so that a single server can implement multiple WebSocket sub-protocols (for example, you might want one server to be able to handle different types of interactions depending on the specified protocol). If you don't specify a protocol string, an empty string is assumed.
    */
 
-  function WebSocketClient(url) {
-    var protocols = arguments.length <= 1 || arguments[1] === undefined ? null : arguments[1];
+  function WebSocketClient(url, protocols) {
     var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
 
     _classCallCheck(this, WebSocketClient);
