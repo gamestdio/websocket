@@ -1,5 +1,7 @@
 # websocket.js
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/gamestdio/websocket.js.svg)](https://greenkeeper.io/)
+
 WebSocket browser client with reconnect back-off feature.
 
 ## Usage
