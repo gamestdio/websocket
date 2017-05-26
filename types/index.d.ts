@@ -7,7 +7,7 @@ declare module "websocket.js" {
         factor?: number
     }
 
-    class WebSocketClient {
+    class WebSocketClient extends WebSocket {
         constructor (url: string, protocols?: string[], options?: WebSocketConnectionOptions);
         url: string;
         protocols?: string[];
@@ -16,13 +16,6 @@ declare module "websocket.js" {
         binaryType: string;
         send(data: any): void;
         listeners: {[id: string]: Function};
-
-        onclose: Function;
-        onerror: Function;
-        onmessage: Function;
-        onopen: Function;
-        onreconnect: Function;
-
     }
 
     export default WebSocketClient;
