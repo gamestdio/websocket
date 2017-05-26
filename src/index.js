@@ -8,7 +8,7 @@ class WebSocketClient {
    */
   constructor (url, protocols, options = {}) {
     this.url = url
-    this._protocols = protocols
+    this.protocols = protocols
 
     this.reconnectEnabled = true
     this.listeners = {}
@@ -24,7 +24,7 @@ class WebSocketClient {
   open (reconnect = false) {
     this.isReconnect = reconnect;
 
-    this.ws = new WebSocket(this.url, this._protocols)
+    this.ws = new WebSocket(this.url, this.protocols)
     this.ws.onclose = this.onCloseCallback.bind(this)
     this.ws.onerror = this.onErrorCallback.bind(this)
     this.ws.onmessage = this.onMessageCallback.bind(this)
