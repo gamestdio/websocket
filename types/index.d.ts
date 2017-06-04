@@ -16,6 +16,8 @@ declare module "websocket.js" {
         binaryType: string;
         send(data: any): void;
         listeners: {[id: string]: Function};
+
+        onreconnect: (this: WebSocketClient, ev: Event) => any;
     }
 
     export default WebSocketClient;
