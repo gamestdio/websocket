@@ -5,3 +5,9 @@ wsClient.onreconnect = () => {};
 wsClient.onopen = () => {};
 wsClient.onclose = () => {};
 wsClient.onmessage = () => {};
+
+class MyClient extends WebSocketClient {
+    onMessageCallback (event) {
+        super.onMessageCallback();
+    }
+}

@@ -19,10 +19,10 @@ declare module "websocket.js" {
 
         onreconnect: (this: WebSocketClient, ev: Event) => any;
 
-        onCloseCallback (): void;
-        onErrorCallback (): void;
-        onMessageCallback (): void;
-        onOpenCallback (): void;
+        onCloseCallback (event?: Event): void;
+        onErrorCallback (event?: Event): void;
+        onMessageCallback (event?: Event): void;
+        onOpenCallback (event?: Event): void;
     }
 
     export default WebSocketClient;
