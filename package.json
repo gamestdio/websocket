@@ -1,6 +1,6 @@
 {
   "name": "websocket.js",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "WebSocket browser client with reconnect back-off feature.",
   "repository": {
     "type": "git",

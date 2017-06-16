@@ -18,6 +18,11 @@ declare module "websocket.js" {
         listeners: {[id: string]: Function};
 
         onreconnect: (this: WebSocketClient, ev: Event) => any;
+
+        onCloseCallback (): void;
+        onErrorCallback (): void;
+        onMessageCallback (): void;
+        onOpenCallback (): void;
     }
 
     export default WebSocketClient;
