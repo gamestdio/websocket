@@ -1,10 +1,8 @@
-declare module "websocket.js" {
+declare module "@gamestdio/websocket" {
     interface WebSocketConnectionOptions {
-        strategy?: "fibonacci" | "exponential",
-        randomisationFactor?: number,
+        backoff?: "fibonacci" | "exponential",
         initialDelay?: number,
         maxDelay?: number,
-        factor?: number
     }
 
     class WebSocketClient extends WebSocket {
