@@ -40,11 +40,11 @@ class WebSocketClient {
   /**
    * @ignore
    */
-  onCloseCallback () {
+  onCloseCallback (e) {
     if (!this.isReconnect && this.listeners['onclose']) {
       this.listeners['onclose'].apply(null, arguments);
     }
-    if (this.reconnectEnabled) {
+    if (this.reconnectEnabled && e.code < 3000) {
       this.backoff.backoff();
     }
   }
