@@ -22,7 +22,11 @@ class WebSocketClient {
   open (reconnect = false) {
     this.isReconnect = reconnect;
 
+    // keep binaryType used on previous WebSocket connection
+    let binaryType = this.ws.binaryType;
+
     this.ws = new WebSocket(this.url, this.protocols);
+    this.ws.binaryType = binaryType;
     this.ws.onclose = this.onCloseCallback.bind(this);
     this.ws.onerror = this.onErrorCallback.bind(this);
     this.ws.onmessage = this.onMessageCallback.bind(this);
