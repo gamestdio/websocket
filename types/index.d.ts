@@ -9,6 +9,7 @@ declare module "@gamestdio/websocket" {
         constructor (url: string, protocols?: string[], options?: WebSocketConnectionOptions);
         url: string;
         protocols?: string[];
+        reconnectEnabled: boolean;
 
         ws: WebSocket;
         binaryType: string;
