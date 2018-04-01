@@ -12,7 +12,7 @@ declare module "@gamestdio/websocket" {
         reconnectEnabled: boolean;
 
         ws: WebSocket;
-        binaryType: Binary;
+        binaryType: BinaryType;
         send(data: any): void;
         listeners: {[id: string]: Function};
 
