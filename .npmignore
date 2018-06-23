@@ -5,3 +5,4 @@
 .gitignore
 index.html
 examples
+/dist
