@@ -1,5 +1,5 @@
 ///<reference path="index.d.ts"/>
-import WebSocketClient from "websocket.js";
+import WebSocketClient from "@gamestdio/websocket";
 let wsClient = new WebSocketClient("ws://...");
 wsClient.onreconnect = () => {};
 wsClient.onopen = () => {};
