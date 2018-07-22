@@ -3,21 +3,27 @@ declare module "@gamestdio/websocket" {
         backoff?: "fibonacci" | "exponential",
         initialDelay?: number,
         maxDelay?: number,
+        connect?: boolean
     }
 
     class WebSocketClient extends WebSocket {
         constructor (url: string, protocols?: string[], options?: WebSocketConnectionOptions);
+
+        // properties
         url: string;
         protocols?: string[];
         reconnectEnabled: boolean;
 
         ws: WebSocket;
         binaryType: BinaryType;
-        send(data: any): void;
         listeners: {[id: string]: Function};
 
-        onreconnect: (this: WebSocketClient, ev: Event) => any;
+        // methods
+        send(data: any): void;
+        open(reconnect?: boolean): void;
 
+        //callbacks
+        onreconnect: (this: WebSocketClient, ev: Event) => any;
         onCloseCallback (event?: Event): void;
         onErrorCallback (event?: Event): void;
         onMessageCallback (event?: Event): void;

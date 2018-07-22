@@ -16,7 +16,9 @@ class WebSocketClient {
     this.backoff = createBackoff(options.backoff || 'exponential', options);
     this.backoff.onReady = this.onBackoffReady.bind(this);
 
-    this.open();
+    if (typeof(options.connect)==="undefined" || options.connect) {
+      this.open();
+    }
   }
 
   open (reconnect = false) {

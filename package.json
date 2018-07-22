@@ -1,10 +1,10 @@
 {
   "name": "@gamestdio/websocket",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "description": "WebSocket browser client with reconnect back-off feature.",
   "repository": {
     "type": "git",
-    "url": "git://github.com/gamestdio/websocket.js.git"
+    "url": "git://github.com/gamestdio/websocket.git"
   },
   "main": "lib/index.js",
   "types": "types/index.d.ts",
