@@ -1,5 +1,9 @@
 var createBackoff = require('./backoff').createBackoff;
 
+var WebSocketImpl = (typeof(WebSocket) !== "undefined")
+  ? WebSocket
+  : require('ws');
+
 class WebSocketClient {
 
   /**
@@ -27,7 +31,7 @@ class WebSocketClient {
     // keep binaryType used on previous WebSocket connection
     let binaryType = this.ws && this.ws.binaryType;
 
-    this.ws = new WebSocket(this.url, this.protocols);
+    this.ws = new WebSocketImpl(this.url, this.protocols);
     this.ws.onclose = this.onCloseCallback.bind(this);
     this.ws.onerror = this.onErrorCallback.bind(this);
     this.ws.onmessage = this.onMessageCallback.bind(this);
@@ -198,21 +202,21 @@ class WebSocketClient {
 /**
  * The connection is not yet open.
  */
-WebSocketClient.CONNECTING = WebSocket.CONNECTING
+WebSocketClient.CONNECTING = WebSocketImpl.CONNECTING
 
 /**
  * The connection is open and ready to communicate.
  */
-WebSocketClient.OPEN = WebSocket.OPEN
+WebSocketClient.OPEN = WebSocketImpl.OPEN
 
 /**
  * The connection is in the process of closing.
  */
-WebSocketClient.CLOSING = WebSocket.CLOSING
+WebSocketClient.CLOSING = WebSocketImpl.CLOSING
 
 /**
  * The connection is closed or couldn't be opened.
  */
-WebSocketClient.CLOSED = WebSocket.CLOSED
+WebSocketClient.CLOSED = WebSocketImpl.CLOSED
 
 export default WebSocketClient

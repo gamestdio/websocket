@@ -1,6 +1,8 @@
 # @gamestdio/websocket
 
-WebSocket browser client with reconnect back-off feature.
+WebSocket with reconnect back-off feature.
+
+For Node.js support, you should install the `ws` module in your project.
 
 ## Usage
 

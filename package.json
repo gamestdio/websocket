@@ -1,6 +1,6 @@
 {
   "name": "@gamestdio/websocket",
-  "version": "0.2.8",
+  "version": "0.3.0",
   "description": "WebSocket browser client with reconnect back-off feature.",
   "repository": {
     "type": "git",
@@ -12,7 +12,8 @@
     "start": "npm run prepublish & nodemon ./examples/server.js",
     "dist": "browserify ./src/index.js -t babelify -s WebSocketClient -o dist/websocket.js && uglifyjs dist/websocket.js > dist/websocket.min.js",
     "prepublish": "babel src -d lib --compact",
-    "test": "tsc --noEmit types/test.ts"
+    "test": "npm run prepublish && mocha test/*_test.js && npm run test-types",
+    "test-types": "tsc --noEmit types/test.ts"
   },
   "engines": {
     "node": ">=0.12.0"
@@ -23,9 +24,10 @@
     "babelify": "^7.2.0",
     "browserify": "^12.0.1",
     "express": "^4.13.3",
+    "mocha": "^5.2.0",
     "nodemon": "^1.7.1",
     "typescript": "^2.9.2",
     "uglify-js": "^2.6.1",
-    "ws": "^0.8.0"
+    "ws": "^6.1.2"
   }
 }
