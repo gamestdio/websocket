@@ -1,6 +1,6 @@
 {
   "name": "@gamestdio/websocket",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "WebSocket browser client with reconnect back-off feature.",
   "repository": {
     "type": "git",
@@ -31,6 +31,9 @@
     "ws": "^6.1.2"
   },
   "react-native": {
+    "ws": false
+  },
+  "browser": {
     "ws": false
   }
 }

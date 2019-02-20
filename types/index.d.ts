@@ -24,9 +24,9 @@ declare module "@gamestdio/websocket" {
 
         //callbacks
         onreconnect: (this: WebSocketClient, ev: Event) => any;
-        onCloseCallback (event?: Event): void;
+        onCloseCallback (event?: CloseEvent): void;
         onErrorCallback (event?: Event): void;
-        onMessageCallback (event?: Event): void;
+        onMessageCallback (event?: MessageEvent): void;
         onOpenCallback (event?: Event): void;
     }
 
