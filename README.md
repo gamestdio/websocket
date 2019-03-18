@@ -13,14 +13,14 @@ It accepts an optional third parameter, which is used to configure
 
 ```javascript
 // fibonacci backoff strategy
-var conn = new WebSocketClient('ws://' + host + ':8080', null, {
+var conn = new WebSocketClient('ws://' + host + ':8080', [], {
   backoff: "fibonacci"
 });
 ```
 
 ```javascript
 // exponential backoff strategy
-var conn = new WebSocketClient('ws://' + host + ':8080', null, {
+var conn = new WebSocketClient('ws://' + host + ':8080', [], {
   backoff: "exponential"
 });
 ```
