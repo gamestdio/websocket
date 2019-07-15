@@ -4,6 +4,10 @@ WebSocket with reconnect back-off feature.
 
 For Node.js support, you should install the `ws` module in your project.
 
+## Installation
+
+`npm i @gamestdio/websocket`
+
 ## Usage
 
 `WebSocketClient` behaves exactly in the same way as `WebSocket`.
